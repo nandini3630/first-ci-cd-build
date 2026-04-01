@@ -7,9 +7,8 @@ on:
 jobs:
 
   build-and-push:
-
+    runs-on: ubuntu-latest
     steps:
-      runs-on: ubuntu-latest
       - name: checkout-code
         uses: actions/checkout@v6
       - name: login to dockerhub
