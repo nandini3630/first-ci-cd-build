@@ -1,0 +1,91 @@
+services:
+  
+  postgres: 
+    image: postgres:15.7-bookworm
+    container_name: postgres
+    environments:
+      - POSTGRES_DB: appdb
+      - POSTGRES_USER: postgres
+      - POSTGRES_PASSWORD_FILE: /run/secrets/db_password 
+    secrets:
+      - db_password
+    volumes:
+      - postgre_data:/var/lib/postgresql/data
+    networks:
+      - python-network
+    security-opt:
+      - no-new-priliviges: true
+    deploy:
+      resources:
+        limits:
+          pids: 100
+    healthcheck:
+      test: ["CMD-SHELL","ps_isready -U postgres -d appdb"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+      start_period: 30s
+  
+  redis:
+    image: redis:7.4.2-bookworm
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      - python-network
+    security-opt:
+      - no-new-priviliges: true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+          pids: 100
+  
+  python-app:
+    build:
+      context: .
+      target: production
+      dockerfile: Dockerfile
+      args: 
+        - GITHUB_SHA: ${GITHUB_SHA: -unknown}
+        - APP_VERSION: ${APP_VERSION: -unknown}
+    image: python-app:${APP_VERSION: -dev}
+    container_name: python-app
+    environment:
+      - DB_HOST: postgres
+      - DB_NAME: appdb
+      - DB_USER: postgres
+      - DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets: 
+      - db_password
+    ports:
+      - 5000:5000
+    networks:
+      - python-network
+    security-opt:
+      - no-new-priviliges: true
+    read-only: true
+    tmpfs:
+      - /tmp:mode=1777,size=64m
+    deploy: 
+      resources:
+        limits:
+          cups: 1
+          memory: 512M
+          pids: 100
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started 
+
+networks:
+  python-network:
+    driver: bridge
+
+secrets:
+  db_password:
+    - file: ./secrets/db_password
+
+volumes:
+  postgre_data:
