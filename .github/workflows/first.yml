@@ -22,6 +22,6 @@ jobs:
         with: 
           push: true
           tags: ${{ vars.DOCKER_USERNAME }}/${{ vars.APP_NAME }}:${{ github.sha }}
-          build-args:
-            GITHUB_SHA: ${{ github.sha }}
-            APP_VERSION: ${{ vars.APP_VERSION }}
+          build-args: |
+            GITHUB_SHA=${{ github.sha }}
+            APP_VERSION=${{ vars.APP_VERSION }}
