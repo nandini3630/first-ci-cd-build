@@ -8,9 +8,6 @@ jobs:
 
   build-and-push:
     runs-on: ubuntu-latest
-    env:
-      APP_VERSION: ${{vars.APP_VERSION}}
-      GIT_SHA: ${{github.sha}}
 
     steps:
       
@@ -31,3 +28,6 @@ jobs:
         with:
           push: true
           tags: ${{vars.DOCKER_USERNAME}}/${{vars.APP_NAME}}:${{github.sha}}
+          build_args: |
+            GIT_SHA=${{github.sha}}
+            APP_VERSION=${{vars.APP_VERSION}}
