@@ -1,11 +1,14 @@
 name: deploy to self hosted runner
 
 on:
-  workflow_dispatch:
+  workflows: ["build-and-push"]
+  type: ["complete"]
+  branches: ["main"]
 
 jobs:
 
   pull-and-deploy:
+    if: ${{github.event.workflow_run.conclusion=='success'}}
     runs-on: self-hosted
     env:
       USERNAME: ${{vars.DOCKER_USERNAME}}
@@ -16,6 +19,9 @@ jobs:
         name: checkout-code
         uses: actions/checkout@v6
 
+      - 
+        name: down
+        run: docker compose down -v
       - 
         name: build the docker build 
         run: docker compose build --no-cache
