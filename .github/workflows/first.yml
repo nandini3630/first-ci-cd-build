@@ -9,8 +9,8 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     env:
-      GIT_SHA=${{github.sha}}
-      APP_VERSION=${{vars.APP_VERSION}}
+      GIT_SHA: ${{github.sha}}
+      APP_VERSION: ${{vars.APP_VERSION}}
     steps: 
       - name: checkout_code
         uses: actions/checkout@v6
