@@ -40,13 +40,7 @@ services:
           pids: 50
 
   python-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: production
-      args:
-        GIT_SHA: ${GIT_SHA:-unknown}
-        APP_VERSION: ${APP_VERSION:-0.0.0.0}
+    image:${DOCkER_USERNAME}/${APP_NAME}:${github.sha}
     container_name: python-app
     init: true
     restart: unless-stopped
