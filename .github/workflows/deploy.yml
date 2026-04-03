@@ -17,13 +17,6 @@ jobs:
         uses: actions/checkout@v6
 
       - 
-        name: install docker on runner
-        uses: docker/setup-docker-action@v5
-      - 
-        name: install docker compose on runner
-        uses: docker/setup-compose-action@v2
-
-      - 
         name: build the docker build 
         run: docker compose build --no-cache
 
