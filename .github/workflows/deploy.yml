@@ -1,9 +1,11 @@
 name: deploy to self hosted runner
 
 on:
-  workflows: ["build-and-push"]
-  type: ["complete"]
-  branches: ["main"]
+  workflow_run:
+
+    workflows: ["build-and-push"]
+    type: ["complete"]
+    branches: ["main"]
 
 jobs:
 
