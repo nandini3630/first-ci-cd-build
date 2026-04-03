@@ -9,7 +9,7 @@ jobs:
     runs-on: self-hosted
     env:
       USERNAME: ${{vars.DOCKER_USERNAME}}
-      APP_USER: ${{vars.APP_NAME}}
+      APP_NAME: ${{vars.APP_NAME}}
       GIT_SHA: ${{github.sha}}
     steps:
       - 
