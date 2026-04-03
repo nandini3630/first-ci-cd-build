@@ -1,31 +1,31 @@
 services:
-  
-  postgres: 
+
+  postgres:
     image: postgres:15.7-bookworm
     container_name: postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: appdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password 
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     secrets:
       - db_password
-    volumes:
-      - postgre_data:/var/lib/postgresql/data
     networks:
       - python-network
     deploy:
       resources:
         limits:
-          cpus: 1
+          cpus: '1'
           memory: 512M
           pids: 100
     healthcheck:
       test: ["CMD-SHELL","pg_isready -U postgres -d appdb"]
       interval: 10s
       retries: 5
-      timeout: 5s
-      start_period: 10s
-  
+      start_period: 5s
+
   redis:
     image: redis:7.4.2-bookworm
     container_name: redis
@@ -37,27 +37,26 @@ services:
         limits:
           cpus: '0.5'
           memory: 256M
-          pids: 100
-  
+          pids: 50
+
   python-app:
     build:
       context: .
-      target: production
       dockerfile: Dockerfile
-      args: 
-        GITHUB_SHA: ${GITHUB_SHA:-unknown}
-        APP_VERSION: ${APP_VERSION:-0.0.0}
-    image: python-app:${APP_VERSION:-dev}
+      target: production
+      args:
+        GIT_SHA: ${GIT_SHA:-unknown}
+        APP_VERSION: ${APP_VERSION:-0.0.0.0}
     container_name: python-app
+    init: true
+    restart: unless-stopped
     environment:
       DB_HOST: postgres
       DB_NAME: appdb
       DB_USER: postgres
       DB_PASSWORD_FILE: /run/secrets/db_password
-    secrets: 
+    secrets:
       - db_password
-    ports:
-      - 5000:5000
     networks:
       - python-network
     security_opt:
@@ -65,17 +64,22 @@ services:
     read_only: true
     tmpfs:
       - /tmp:mode=1777,size=64m
-    deploy: 
-      resources:
-        limits:
-          cpus: 1
-          memory: 512M
-          pids: 100
     depends_on:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started 
+        condition: service_started
+    ports:
+      - 5000:5000
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+          pids: 100
+
+volumes:
+  postgres_data:
 
 networks:
   python-network:
@@ -84,6 +88,3 @@ networks:
 secrets:
   db_password:
     file: ./secrets/db_password
-
-volumes:
-  postgre_data:
