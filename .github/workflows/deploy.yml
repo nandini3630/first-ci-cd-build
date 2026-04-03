@@ -1,0 +1,38 @@
+name: deploy to self hosted runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  pull-and-deploy:
+    runs-on: self-hosted
+    env:
+      USERNAME: ${{vars.DOCKER_USERNAME}}
+      APP_USER: ${{vars.APP_NAME}}
+      GIT_SHA: ${{github.sha}}
+    steps:
+      - 
+        name: checkout-code
+        uses: actions/checkout@v6
+
+      - 
+        name: install docker on runner
+        uses: docker/setup-docker-action@v5
+      - 
+        name: install docker compose on runner
+        uses: docker/setup-compose-action@v2
+
+      - 
+        name: build the docker build 
+        run: docker compose build --no-cache
+
+      - 
+        name: up the docker compose
+        env: docker compose up -d 
+
+
+
+
+
+
