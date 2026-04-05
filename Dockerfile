@@ -13,6 +13,8 @@ WORKDIR /app
 ARG GIT_SHA=unknown \
     APP_VERSION=unknown
 
+RUN find / -xdev -perm /6000 -exec chmod a-s {} + 2>/dev/null || true
+
 LABEL oci.opencontainers.image.version=${APP_VERSION} \
       oci.opencontainers.image.revision=${GIT_SHA}
 
